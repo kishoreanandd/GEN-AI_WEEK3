@@ -1,0 +1,174 @@
+{
+  "name": "Google  sheet Automation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ceafbdba-646f-4a2f-ae00-a857171a6aca",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1rn2kX0uXVe-ljcDDGKIP0l5qYKy_6vc-T_HWH9YDSsA",
+          "mode": "list",
+          "cachedResultName": "genaiautomation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rn2kX0uXVe-ljcDDGKIP0l5qYKy_6vc-T_HWH9YDSsA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rn2kX0uXVe-ljcDDGKIP0l5qYKy_6vc-T_HWH9YDSsA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a616eae3-fbcc-49d2-9ce7-dc0c2664d32f",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "3AyYhsQf8EvHmoDC",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa76b456-735a-4c72-9db6-f537c33a7eff",
+              "name": "subject",
+              "value": "Data Summary from Google Sheet",
+              "type": "string"
+            },
+            {
+              "id": "473dea68-a691-43a7-9942-93eac457c36f",
+              "name": "body",
+              "value": "=Hi,  Here is the latest data from the sheet:  Name: {{ $json.Name }} Course: {{ $json.Course }} Status: {{ $json.Status }}  Regards, Your Automation Bot",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "ceddbe03-91a2-4f55-ac3a-4ff14dc51367",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all rows coming from the Edit Fields node.\nconst items = $input.all();\n\n// Combine every row into one readable email body.\nconst rows = items.map(item => {\n  const data = item.json;\n  return `- Name: ${data.Name || 'N/A'}\n  Course: ${data.Course || 'N/A'}\n  Status: ${data.Status || 'N/A'}`;\n});\n\n// Create one email subject and one combined body.\nreturn [{\n  json: {\n    subject: 'Data Summary from Google Sheet',\n    body: `Hi,\n\nHere is the latest data from the sheet:\n\n${rows.join('\\n\\n')}\n\nRegards,\nYour Automation Bot`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "bc82f77a-4bc5-4549-bb34-66d2270716b9",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sendTo": "=dkdigitals.off@gmail.com",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        0
+      ],
+      "id": "24a53e26-2560-49e4-8464-892bfa9eeab0",
+      "name": "Send a message",
+      "webhookId": "2e7af452-3ae6-41dd-9fa8-5d1aa1026f3d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "dhHdBcEJ5rrJPwYW",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fa611336-5d96-473a-a9ec-8cb23edb1d2d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fe77aa3fe840d5e1c8d8b96da92d07e33445208518888a8e52891da7c25e5f06"
+  },
+  "nodeGroups": [],
+  "id": "I6iR1iUPECoree3h",
+  "tags": []
+}
